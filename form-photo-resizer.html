@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormReady — Photo & Signature Resizer</title>
+<style>
+:root { color-scheme: light dark; --bg: light-dark(#f5f7f4,#111713); --panel: light-dark(#ffffff,#1b241e); --ink: light-dark(#18251d,#edf4ee); --muted: light-dark(#637166,#a8b8ac); --line: light-dark(#dce5dc,#344239); --accent: light-dark(#216b4a,#80d9a7); --accent-ink: light-dark(#ffffff,#102318); --soft: light-dark(#eaf4ed,#24382b); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+#app { min-height: 100vh; width: 100%; background: var(--bg); border-radius: 0; }
+header { max-width: 1120px; margin: 0 auto; padding: 25px 22px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.04em; font-size:21px; }
+.logo { width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--accent); color:var(--accent-ink); font-weight:900; }
+.pill { border:1px solid var(--line); color:var(--muted); padding:7px 11px; border-radius:999px; font-size:12px; }
+main { max-width:1120px; margin:0 auto; padding:25px 22px 55px; }
+.hero { max-width:760px; margin:12px auto 35px; text-align:center; }
+.eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+h1 { font-size:clamp(35px,6vw,58px); letter-spacing:-.055em; line-height:1.04; margin:14px 0; }
+.hero p { color:var(--muted); font-size:17px; line-height:1.6; margin:0 auto; max-width:650px; }
+.layout { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:20px; align-items:start; }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:23px; box-shadow:0 10px 35px #00000008; }
+h2 { margin:0 0 8px; font-size:20px; letter-spacing:-.03em; }
+.sub { color:var(--muted); font-size:13px; line-height:1.5; margin:0 0 22px; }
+.drop { border:1.5px dashed var(--line); background:var(--bg); border-radius:16px; padding:28px 15px; text-align:center; cursor:pointer; transition:border-color .2s; }
+.drop:hover { border-color:var(--accent); }
+.upload-icon { font-size:28px; margin-bottom:8px; }
+.drop strong { display:block; font-size:15px; margin-bottom:5px; }
+.drop span { color:var(--muted); font-size:12px; }
+input[type=file] { display:none; }
+.controls { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin-top:18px; }
+.field { display:flex; flex-direction:column; gap:7px; }
+.field label { font-size:12px; font-weight:700; color:var(--muted); }
+.field input,.field select { width:100%; min-width:0; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); padding:11px 12px; font:inherit; }
+.full { grid-column:1/-1; }
+.actions { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+button { border:0; border-radius:12px; padding:12px 17px; font:inherit; font-size:14px; font-weight:750; cursor:pointer; }
+.primary { background:var(--accent); color:var(--accent-ink); }
+.secondary { background:var(--soft); color:var(--ink); }
+button:disabled { opacity:.4; cursor:not-allowed; }
+.preview { min-height:290px; display:flex; align-items:center; justify-content:center; flex-direction:column; border:1px solid var(--line); border-radius:16px; background:var(--bg); padding:20px; text-align:center; overflow:hidden; }
+.preview img { max-width:100%; max-height:280px; object-fit:contain; border-radius:7px; }
+.placeholder { color:var(--muted); font-size:13px; line-height:1.6; max-width:260px; }
+.metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:13px; }
+.metric { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px; }
+.metric span { display:block; color:var(--muted); font-size:11px; margin-bottom:5px; }
+.metric strong { font-size:16px; }
+.status { margin-top:13px; color:var(--muted); font-size:12px; line-height:1.5; min-height:18px; }
+.privacy { margin-top:20px; border-radius:14px; padding:13px 14px; background:var(--soft); color:var(--muted); font-size:12px; line-height:1.55; }
+.steps { margin-top:25px; display:grid; grid-template-columns:repeat(3,1fr); gap:13px; }
+.step { padding:17px; border:1px solid var(--line); background:var(--panel); border-radius:16px; }
+.step b { display:block; margin-bottom:5px; font-size:13px; }
+.step p { color:var(--muted); font-size:12px; line-height:1.55; margin:0; }
+footer { max-width:1120px; margin:0 auto; padding:0 22px 28px; color:var(--muted); font-size:11px; line-height:1.6; }
+@media(max-width:760px) { header { padding:18px 16px; } main { padding:12px 16px 35px; } .layout { grid-template-columns:1fr; } .panel { padding:18px; } .steps { grid-template-columns:1fr; } .pill { display:none; } }
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="brand"><div class="logo">F</div>FormReady</div><div class="pill">Free · No account · Browser-based</div></header>
+<main>
+<section class="hero"><div class="eyebrow">Simple image utility</div><h1>Make your photo<br>form-ready.</h1><p>Resize a photo or signature to the dimensions you need. Your image stays on your device while you work.</p></section>
+<section class="layout">
+<div class="panel">
+<h2>1. Choose an image</h2><p class="sub">Start with a JPG, PNG or WebP image from your phone or computer.</p>
+<label class="drop" for="file"><div class="upload-icon">＋</div><strong>Tap to choose your image</strong><span>JPG, PNG or WebP · processed in your browser</span></label><input id="file" type="file" accept="image/jpeg,image/png,image/webp">
+<div class="controls">
+<div class="field full"><label for="preset">Quick preset</label><select id="preset"><option value="custom">Custom dimensions</option><option value="photo">Passport-style photo — 413 × 531 px</option><option value="signature">Signature — 300 × 100 px</option><option value="square">Square image — 500 × 500 px</option><option value="small">Small image — 200 × 200 px</option></select></div>
+<div class="field"><label for="width">Width (px)</label><input id="width" type="number" min="1" max="5000" value="413"></div>
+<div class="field"><label for="height">Height (px)</label><input id="height" type="number" min="1" max="5000" value="531"></div>
+<div class="field"><label for="format">Output format</label><select id="format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
+<div class="field"><label for="quality">Quality (JPG/WebP)</label><select id="quality"><option value="0.65">65% — smaller</option><option value="0.8" selected>80% — balanced</option><option value="0.9">90% — clearer</option><option value="1">100% — maximum</option></select></div>
+</div>
+<div class="actions"><button class="primary" id="process" disabled>Resize image →</button><button class="secondary" id="reset">Reset</button></div>
+<div class="privacy">🔒 <b>Privacy:</b> This prototype processes the selected image locally in your browser. It does not upload the image to a server.</div>
+</div>
+<div class="panel">
+<h2>2. Preview & save</h2><p class="sub">Check the output dimensions, then save the resized file.</p>
+<div class="preview" id="preview"><div class="placeholder">Your resized image will appear here after you choose a file and tap “Resize image”.</div></div>
+<div class="metrics"><div class="metric"><span>Output dimensions</span><strong id="dims">—</strong></div><div class="metric"><span>Output file size</span><strong id="size">—</strong></div></div>
+<div class="actions"><button class="primary" id="download" disabled>Download image ↓</button></div><div class="status" id="status" role="status" aria-live="polite">Ready when you are.</div>
+</div>
+</section>
+<section class="steps"><div class="step"><b>01 · Choose</b><p>Select a photo or signature from your device.</p></div><div class="step"><b>02 · Set dimensions</b><p>Enter the pixel width and height requested by your form. Presets are only starting points.</p></div><div class="step"><b>03 · Save</b><p>Preview the result and download it. Always check the specific application’s requirements.</p></div></section>
+</main>
+<footer>FormReady is an independent utility prototype, not an official government service. The passport-style preset is a generic image size, not a guarantee that a photo meets any application’s rules. Verify dimensions, file-size limits, background and other requirements with the official form instructions. No monetization or analytics are active in this preview.</footer>
+</div>
+<script>
+(() => {
+ const fileInput = document.getElementById('file');
+ const preset = document.getElementById('preset');
+ const widthInput = document.getElementById('width');
+ const heightInput = document.getElementById('height');
+ const formatInput = document.getElementById('format');
+ const qualityInput = document.getElementById('quality');
+ const processButton = document.getElementById('process');
+ const downloadButton = document.getElementById('download');
+ const preview = document.getElementById('preview');
+ const dims = document.getElementById('dims');
+ const size = document.getElementById('size');
+ const status = document.getElementById('status');
+ let sourceImage = null;
+ let sourceName = 'image';
+ let outputUrl = null;
+ let outputBlob = null;
+ function resetOutput() {
+   if (outputUrl) URL.revokeObjectURL(outputUrl);
+   outputUrl = null; outputBlob = null;
+   downloadButton.disabled = true;
+   dims.textContent = '—'; size.textContent = '—';
+   preview.innerHTML = '<div class="placeholder">Your resized image will appear here after you choose a file and tap “Resize image”.</div>';
+ }
+ function humanBytes(bytes) {
+   if (bytes < 1024) return bytes + ' B';
+   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+   return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+ }
+ fileInput.addEventListener('change', () => {
+   resetOutput();
+   const file = fileInput.files && fileInput.files[0];
+   sourceImage = null;
+   if (!file) { processButton.disabled = true; status.textContent = 'No image selected.'; return; }
+   if (!file.type.startsWith('image/')) { processButton.disabled = true; status.textContent = 'Please choose an image file.'; return; }
+   sourceName = file.name.replace(/\.[^.]+$/, '') || 'image';
+   const image = new Image();
+   image.onload = () => { sourceImage = image; processButton.disabled = false; status.textContent = `Loaded ${image.naturalWidth} × ${image.naturalHeight} px (${humanBytes(file.size)}).`; };
+   image.onerror = () => { processButton.disabled = true; status.textContent = 'Could not open this image. Try a JPG or PNG.'; };
+   image.src = URL.createObjectURL(file);
+ });
+ preset.addEventListener('change', () => {
+   const values = { photo:[413,531], signature:[300,100], square:[500,500], small:[200,200] };
+   if (values[preset.value]) { widthInput.value = values[preset.value][0]; heightInput.value = values[preset.value][1]; }
+ });
+ [widthInput,heightInput,formatInput,qualityInput].forEach(el => el.addEventListener('change', resetOutput));
+ processButton.addEventListener('click', () => {
+   if (!sourceImage) { status.textContent = 'Choose an image first.'; return; }
+   const w = Number(widthInput.value), h = Number(heightInput.value);
+   if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || h < 1 || w > 5000 || h > 5000) { status.textContent = 'Enter width and height between 1 and 5000 pixels.'; return; }
+   const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+   const ctx = canvas.getContext('2d');
+   if (formatInput.value === 'image/jpeg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h); }
+   ctx.drawImage(sourceImage, 0, 0, w, h);
+   status.textContent = 'Processing image…';
+   canvas.toBlob(blob => {
+     if (!blob) { status.textContent = 'Could not create this format. Try JPG or PNG.'; return; }
+     if (outputUrl) URL.revokeObjectURL(outputUrl);
+     outputBlob = blob; outputUrl = URL.createObjectURL(blob);
+     preview.innerHTML = '';
+     const resultImage = document.createElement('img'); resultImage.alt = 'Resized image preview'; resultImage.src = outputUrl; preview.appendChild(resultImage);
+     dims.textContent = `${w} × ${h} px`; size.textContent = humanBytes(blob.size);
+     downloadButton.disabled = false;
+     status.textContent = `Done. Output is ${humanBytes(blob.size)}. Check your form's file-size rules before submitting.`;
+   }, formatInput.value, Number(qualityInput.value));
+ });
+ downloadButton.addEventListener('click', () => {
+   if (!outputBlob || !outputUrl) return;
+   const ext = formatInput.value === 'image/png' ? 'png' : formatInput.value === 'image/webp' ? 'webp' : 'jpg';
+   const a = document.createElement('a'); a.href = outputUrl; a.download = `${sourceName}-resized.${ext}`; document.body.appendChild(a); a.click(); a.remove();
+ });
+ document.getElementById('reset').addEventListener('click', () => {
+   fileInput.value = ''; sourceImage = null; processButton.disabled = true; resetOutput(); status.textContent = 'Ready when you are.'; preset.value = 'custom'; widthInput.value = 413; heightInput.value = 531; formatInput.value = 'image/jpeg'; qualityInput.value = '0.8';
+ });
+})();
+</script>
+</body>
+</html>
